@@ -33,5 +33,7 @@ Repository to clone and starting make something awesome with laravel!
 - Create or clone .env by .env.example
 - Verify if docker has access to files
 - Run command: `composer install`
+- Run command: `php artisan ide-helper:generate`
+- Run command: `php artisan ide-helper:meta`
 
 Fix all issues and you will be free! =)
