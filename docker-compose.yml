@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:5.7.38
+    restart: unless-stopped
+    tty: true
+    environment:
+      MYSQL_DATABASE: homestaed
+      MYSQL_USER: homestaed
+      MYSQL_PASSWORD: homestaed
+      MYSQL_ROOT_PASSWORD: udemy #required
+      SERVICE_TAG: dev
+      SERVICE_NAME: mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - ../CHANGEME/.var/mysql/data:/var/lib/mysql
+    networks:
+      - CHANGEME
+
+  fpm:
+    build: ./config/docker/containers/fpm
+    depends_on:
+      - mysql
+    volumes:
+      - ../CHANGEME:/var/www/html
+      - ../CHANGEME/.var/logs/fpm:/var/log
+    networks:
+      - CHANGEME
+
+  nginx:
+    build: ./config/docker/containers/nginx
+    depends_on:
+      - fpm
+    volumes:
+      - ../CHANGEME:/var/www/html
+      - ../CHANGEME/.var/logs/nginx:/var/log/nginx
+    ports:
+      - "80:80"
+    networks:
+      - CHANGEME
+
+  redis:
+    depends_on:
+      - fpm
+    image: redis:4.0
+    volumes:
+      - ../CHANGEME/.var/redis/data:/data
+    ports:
+      - '127.0.0.1:6379:6379/tcp'
+    networks:
+      - CHANGEME
+
+  redisinsight:
+    image: 'redislabs/redisinsight:latest'
+    ports:
+      - '127.0.0.1:8001:8001'
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - 1025:1025
+      - 8025:8025
+    networks:
+      - CHANGEME
+
+networks:
+  CHANGEME:
